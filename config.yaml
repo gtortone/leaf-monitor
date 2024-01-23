@@ -1,0 +1,12 @@
+---
+
+- console:
+    enable: on
+
+- epics:
+    enable: on
+    prefix: "CORA:SENS:"
+
+- http:
+    enable: off
+    url: "http://changeme:1234"

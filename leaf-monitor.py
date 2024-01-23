@@ -4,6 +4,7 @@ import os
 import threading
 import time
 import json
+import yaml
 
 from queue import Queue, Empty
 from pcaspy import SimpleServer, Driver
@@ -11,7 +12,8 @@ from pvs import pvdb
 
 class FifoThread(threading.Thread):
    def __init__(self, qlist, fifo, kwargs=None):
-      threading.Thread.__init__(self, args=(), kwargs=None)
+      threading.Thread.__init__(self, args=(), kwargs=None) 
+
       self.name = "FifoThread"
       self.qlist = qlist
       self.fifo = fifo
@@ -61,7 +63,7 @@ class EpicsDriver(Driver):
       return True 
 
 class EpicsThread(threading.Thread):
-   def __init__(self, kwargs=None):
+   def __init__(self, pvprefix, kwargs=None):
       threading.Thread.__init__(self, args=(), kwargs=None)
 
       self.name = "EpicsThread"
@@ -69,7 +71,7 @@ class EpicsThread(threading.Thread):
       self.daemon = True
 
       self.server = SimpleServer()
-      self.server.createPV('SENS:', pvdb)
+      self.server.createPV(pvprefix, pvdb)
       self.driver = EpicsDriver()
 
    def run(self):
@@ -103,10 +105,28 @@ if __name__ == '__main__':
       print(e)
       exit(-1)
 
+   # read config file to setup and start backend threads
+
+   config = {}
+   with open("config.yaml", "r") as stream:
+      try:
+         config = yaml.safe_load(stream)
+         print(config) 
+      except yaml.YAMLError as e:
+         print(e)
+         exit(-1)
+
    threads = []
 
-   threads.append(ConsoleThread())
-   threads.append(EpicsThread())
+   for backend in config:
+
+      if 'epics' in backend:
+         if backend['epics'].get('enable', False):
+            threads.append(EpicsThread(backend['epics'].get('prefix', 'SENS:')))
+            
+      if 'console' in backend:
+         if backend['console'].get('enable', False):
+            threads.append(ConsoleThread())
 
    qlist = []
 
