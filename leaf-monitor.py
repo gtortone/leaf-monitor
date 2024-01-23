@@ -111,7 +111,6 @@ if __name__ == '__main__':
    with open("config.yaml", "r") as stream:
       try:
          config = yaml.safe_load(stream)
-         print(config) 
       except yaml.YAMLError as e:
          print(e)
          exit(-1)
@@ -127,6 +126,10 @@ if __name__ == '__main__':
       if 'console' in backend:
          if backend['console'].get('enable', False):
             threads.append(ConsoleThread())
+
+   if len(threads) == 0:
+      print("ERROR: enable at least one backend in config file")
+      exit(-1)
 
    qlist = []
 
