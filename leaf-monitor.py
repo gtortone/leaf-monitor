@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import sys
 import threading
 import time
 import json
@@ -108,7 +109,7 @@ if __name__ == '__main__':
    # read config file to setup and start backend threads
 
    config = {}
-   with open("config.yaml", "r") as stream:
+   with open(f"{sys.path[0]}/config.yaml", "r") as stream:
       try:
          config = yaml.safe_load(stream)
       except yaml.YAMLError as e:
@@ -119,13 +120,13 @@ if __name__ == '__main__':
 
    for backend in config:
 
-      if 'epics' in backend:
-         if backend['epics'].get('enable', False):
-            threads.append(EpicsThread(backend['epics'].get('prefix', 'SENS:')))
-            
       if 'console' in backend:
          if backend['console'].get('enable', False):
             threads.append(ConsoleThread())
+
+      if 'epics' in backend:
+         if backend['epics'].get('enable', False):
+            threads.append(EpicsThread(backend['epics'].get('prefix', 'SENS:')))
 
    if len(threads) == 0:
       print("ERROR: enable at least one backend in config file")
@@ -140,7 +141,6 @@ if __name__ == '__main__':
 
    for t in threads:
       t.start()
-      time.sleep(0.1)
-
+      
    for t in threads:
       t.join()
