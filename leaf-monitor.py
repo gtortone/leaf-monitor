@@ -130,6 +130,7 @@ class HttpThread(threading.Thread):
                payload = self.get_influx_payload(data)
                res = None
                if payload:
+                  print(payload)
                   try:
                      res = requests.post(self.url, auth=(self.username, self.password), data=payload, verify=False)
                   except:
@@ -160,9 +161,11 @@ class HttpThread(threading.Thread):
                return None
             measurement = v
          elif k in tags:
-           taglist.append(f'{k}={v}')
+            taglist.append(f'{k}={v}')
          else:
-           valuelist.append(f'{k}={v}')
+            if type(v) == str:
+               v = f'"{v}"'
+            valuelist.append(f'{k}={v}')
 
       # sanity check 
       if timestamp and measurement and len(taglist) and len(valuelist):
