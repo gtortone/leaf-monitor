@@ -6,8 +6,7 @@
 - epics:
     enable: on
     # $HOSTNAME: machine hostname
-    # prefix: "$hostname:SENS:"
-    prefix: "CORA:SENS:"
+    prefix: "$hostname:SENS:"
 
 - http:
     enable: on
