@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
 import os
+import re
 import sys
 import threading
 import time
 import json
 import yaml
+import socket
 
 from queue import Queue, Empty
 from pcaspy import SimpleServer, Driver
@@ -83,7 +85,7 @@ class EpicsThread(threading.Thread):
          except Empty:
             self.server.process(0.1)
          else:
-            print(f'{threading.current_thread().name}, Received {msg}')
+            #print(f'{threading.current_thread().name}, Received {msg}')
             try:
                data = json.loads(msg)
             except:
@@ -92,6 +94,65 @@ class EpicsThread(threading.Thread):
                for k,v in pvdb.items():
                   if pvdb[k]["event"] == data["event"] and data["type"] in pvdb[k]["metric"]:
                      pvdb[k]["value"] = data[pvdb[k]["valattr"]]
+
+class HttpThread(threading.Thread):
+   def __init__(self, kwargs=None):
+      threading.Thread.__init__(self, args=(), kwargs=None)
+         
+      self.name = "HttpThread"
+      self.queue = Queue()
+      self.cache = Queue()
+      self.hostname = kwargs['hostname']
+      self.url = kwargs['url']
+      self.username = kwargs['username']
+      self.password = kwargs['password']
+      self.daemon = True
+   
+   def run(self):
+      print(f'{threading.current_thread().name}')
+      while True:
+         msg = self.queue.get()
+         #print(f'{threading.current_thread().name}, Received {msg}')
+         try:
+            data = json.loads(msg)
+         except:
+            print(f'error parsing JSON: {msg}')
+         else:
+            payload = self.get_influx_payload(data)
+            if payload:
+               print(payload)
+   
+   def get_influx_payload(self, data):
+      timestamp = None
+      measurement = None
+      taglist = []
+      valuelist = []
+
+      ignore = ['unit']
+      tags = ['type']
+      
+      for k,v in data.items():
+         if k in ignore:
+            continue
+         if k == 'timestamp':
+            # InfluxDB timestamp in ns
+            timestamp = v * 1E9
+         elif k == 'event':
+            if v == 'corr':      # skip 'corr' events (wait for patch)
+               return None
+            measurement = v
+         elif k in tags:
+           taglist.append(f'{k}={v}')
+         else:
+           valuelist.append(f'{k}={v}')
+
+      # sanity check 
+      if timestamp and measurement and len(taglist) and len(valuelist):
+         payload = f'{measurement},' + f'host={self.hostname},' + ",".join(taglist) + ' ' + ",".join(valuelist) + ' ' + f'{timestamp}'
+      else:
+         print(f'{threading.current_thread().name}: error get_influx_payload')
+
+      return payload
 
 if __name__ == '__main__':
 
@@ -105,6 +166,9 @@ if __name__ == '__main__':
    except Exception as e:
       print(e)
       exit(-1)
+
+   # get hostname
+   hostname = socket.gethostname().split(".")[0] 
 
    # read config file to setup and start backend threads
 
@@ -126,7 +190,22 @@ if __name__ == '__main__':
 
       if 'epics' in backend:
          if backend['epics'].get('enable', False):
-            threads.append(EpicsThread(backend['epics'].get('prefix', 'SENS:')))
+            # resolve macro
+            prefix = backend['epics'].get('prefix', 'SENS:')
+            prefix = re.sub('\$hostname', hostname, prefix.lower()).upper()
+            threads.append(EpicsThread(prefix))
+
+      if 'http' in backend:
+         if backend['http'].get('enable', False):
+            args = {}
+            args['hostname'] = hostname
+            args['url'] = backend['http'].get('url', None)
+            if args['url'] is None:
+               print("ERROR: HTTP backend enabled but 'url' parameter is not provided")
+               exit(-1)
+            args['username'] = backend['http'].get('username', None)
+            args['password'] = backend['http'].get('password', None)
+            threads.append(HttpThread(kwargs=args))
 
    if len(threads) == 0:
       print("ERROR: enable at least one backend in config file")
