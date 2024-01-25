@@ -8,6 +8,8 @@ import time
 import json
 import yaml
 import socket
+import requests
+requests.packages.urllib3.disable_warnings()
 
 from queue import Queue, Empty
 from pcaspy import SimpleServer, Driver
@@ -104,23 +106,39 @@ class HttpThread(threading.Thread):
       self.cache = Queue()
       self.hostname = kwargs['hostname']
       self.url = kwargs['url']
-      self.username = kwargs['username']
-      self.password = kwargs['password']
+      self.username = kwargs.get('username', None)
+      self.password = kwargs.get('password', None)
       self.daemon = True
    
    def run(self):
       print(f'{threading.current_thread().name}')
       while True:
-         msg = self.queue.get()
-         #print(f'{threading.current_thread().name}, Received {msg}')
          try:
-            data = json.loads(msg)
-         except:
-            print(f'error parsing JSON: {msg}')
+            msg = self.queue.get_nowait()
+         except Empty:
+            if self.cache.empty() == False:
+               msg = self.cache.get_nowait()
+            else:
+               time.sleep(0.1)
          else:
-            payload = self.get_influx_payload(data)
-            if payload:
-               print(payload)
+            #print(f'{threading.current_thread().name}, Received {msg}')
+            try:
+               data = json.loads(msg)
+            except:
+               print(f'error parsing JSON: {msg}')
+            else:
+               payload = self.get_influx_payload(data)
+               res = None
+               if payload:
+                  try:
+                     res = requests.post(self.url, auth=(self.username, self.password), data=payload, verify=False)
+                  except:
+                     self.cache.put(msg)
+                  else:
+                     if res.ok == False:
+                       self.cache.put(msg)
+                     #else:
+                     #   print(f'{threading.current_thread().name}: {msg}')
    
    def get_influx_payload(self, data):
       timestamp = None
@@ -136,7 +154,7 @@ class HttpThread(threading.Thread):
             continue
          if k == 'timestamp':
             # InfluxDB timestamp in ns
-            timestamp = v * 1E9
+            timestamp = int(v * 1E9)
          elif k == 'event':
             if v == 'corr':      # skip 'corr' events (wait for patch)
                return None
