@@ -4,16 +4,16 @@ import os
 import re
 import sys
 import threading
-import time
 import json
 import yaml
 import socket
-import requests
-requests.packages.urllib3.disable_warnings()
 
 from queue import Queue, Empty
-from pcaspy import SimpleServer, Driver
 from pvs import pvdb
+
+from backends.console import ConsoleThread
+from backends.epics import EpicsThread
+from backends.http import HttpThread
 
 class FifoThread(threading.Thread):
    def __init__(self, qlist, fifo, kwargs=None):
@@ -39,141 +39,6 @@ class FifoThread(threading.Thread):
    def publish(self, msg):
       for q in qlist:
          q.put(msg)
-
-
-class ConsoleThread(threading.Thread):
-   def __init__(self, kwargs=None):
-      threading.Thread.__init__(self, args=(), kwargs=None)
-         
-      self.name = "ConsoleThread"
-      self.queue = Queue()
-      self.daemon = True
-
-   def run(self):
-      print(f'{threading.current_thread().name}')
-      while True:
-         msg = self.queue.get()
-         print(f'{threading.current_thread().name}, Received {msg}')
-
-class EpicsDriver(Driver):
-   def __init__(self):
-      super(EpicsDriver, self).__init__()
-
-   def read(self, reason):
-      if reason in pvdb:
-         return pvdb[reason]['value']
-
-   def write(self, reason, value):
-      # disable PV write (caput)
-      return True 
-
-class EpicsThread(threading.Thread):
-   def __init__(self, pvprefix, kwargs=None):
-      threading.Thread.__init__(self, args=(), kwargs=None)
-
-      self.name = "EpicsThread"
-      self.queue = Queue()
-      self.daemon = True
-
-      self.server = SimpleServer()
-      self.server.createPV(pvprefix, pvdb)
-      self.driver = EpicsDriver()
-
-   def run(self):
-      print(f'{threading.current_thread().name}')
-      while True:
-         try:
-            msg = self.queue.get_nowait()
-         except Empty:
-            self.server.process(0.1)
-         else:
-            #print(f'{threading.current_thread().name}, Received {msg}')
-            try:
-               data = json.loads(msg)
-            except:
-               print(f'error parsing JSON: {msg}')
-            else:
-               for k,v in pvdb.items():
-                  if pvdb[k]["event"] == data["event"] and data["type"] in pvdb[k]["metric"]:
-                     pvdb[k]["value"] = data[pvdb[k]["valattr"]]
-
-class HttpThread(threading.Thread):
-   def __init__(self, kwargs=None):
-      threading.Thread.__init__(self, args=(), kwargs=None)
-         
-      self.name = "HttpThread"
-      self.queue = Queue()
-      self.cache = Queue()
-      self.hostname = kwargs['hostname']
-      self.url = kwargs['url']
-      self.username = kwargs.get('username', None)
-      self.password = kwargs.get('password', None)
-      self.daemon = True
-   
-   def run(self):
-      print(f'{threading.current_thread().name}')
-      while True:
-         try:
-            msg = self.queue.get_nowait()
-         except Empty:
-            if self.cache.empty() == False:
-               msg = self.cache.get_nowait()
-            else:
-               time.sleep(0.1)
-         else:
-            #print(f'{threading.current_thread().name}, Received {msg}')
-            try:
-               data = json.loads(msg)
-            except:
-               print(f'error parsing JSON: {msg}')
-            else:
-               payload = self.get_influx_payload(data)
-               res = None
-               if payload:
-                  print(payload)
-                  try:
-                     res = requests.post(self.url, auth=(self.username, self.password), data=payload, verify=False)
-                  except:
-                     self.cache.put(msg)
-                  else:
-                     if res.ok == False:
-                       self.cache.put(msg)
-                     #else:
-                     #   print(f'{threading.current_thread().name}: {msg}')
-   
-   def get_influx_payload(self, data):
-      timestamp = None
-      measurement = None
-      taglist = []
-      valuelist = []
-
-      ignore = ['unit']
-      tags = ['type']
-      
-      for k,v in data.items():
-         if k in ignore:
-            continue
-         if k == 'timestamp':
-            # InfluxDB timestamp in ns
-            timestamp = int(v * 1E9)
-         elif k == 'event':
-            if v == 'corr':      # skip 'corr' events (wait for patch)
-               return None
-            measurement = v
-         elif k in tags:
-            taglist.append(f'{k}={v}')
-         else:
-            if type(v) == str:
-               v = f'"{v}"'
-            valuelist.append(f'{k}={v}')
-
-      # sanity check 
-      if timestamp and measurement and len(taglist) and len(valuelist):
-         payload = f'{measurement},' + f'host={self.hostname},' + ",".join(taglist) + ' ' + ",".join(valuelist) + ' ' + f'{timestamp}'
-      else:
-         print(f'{threading.current_thread().name}: error get_influx_payload')
-
-      return payload
 
 if __name__ == '__main__':
 
@@ -211,10 +76,20 @@ if __name__ == '__main__':
 
       if 'epics' in backend:
          if backend['epics'].get('enable', False):
+            fpgatype = backend['epics'].get('fpgatype', None)
+            if fpgatype is None:
+               print("ERROR: 'fpgatype' for EPICS backend is not provided")
+               exit(-1)
+            if pvdb.get(fpgatype, None) is None:
+               print(f"ERROR: {fpgatype} not found for EPICS backend")
+               exit(-1)
             # resolve macro
             prefix = backend['epics'].get('prefix', 'SENS:')
             prefix = re.sub('\$hostname', hostname, prefix.lower()).upper()
-            threads.append(EpicsThread(prefix))
+            args = {}
+            args['prefix'] = prefix
+            args['pvdb'] = pvdb[fpgatype]
+            threads.append(EpicsThread(kwargs=args))
 
       if 'http' in backend:
          if backend['http'].get('enable', False):

@@ -7,9 +7,10 @@
     enable: on
     # $HOSTNAME: machine hostname
     prefix: "$hostname:SENS:"
+    fpgatype: "artix7"
 
 - http:
     enable: on
-    url: "http://changeme:1234"
-    username: "foo"
-    password: "bar"
+    url: "https://telegraf:8186/write"
+    username: "myuser"
+    password: "mypass"

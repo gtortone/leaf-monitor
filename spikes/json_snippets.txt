@@ -1,3 +1,4 @@
+{ "timestamp" : 1706263004.778413, "event" : "corr",  "type" : "blank",  "frad" : "0x0042261C" , "nofupsets" : 4,   "bitoffset" : [ 86, 2413, 2752, 2776 ] ,  "direction" : [ "set", "set", "set", "set" ]  }
 { "timestamp" : 1705580566, "event" : "xadc", "type" : "vrefn",  "value" : 0.0000, "unit" : "V" }
 { "timestamp" : 1705580566, "event" : "xadc", "type" : "vccbram",  "value" : 0.9485, "unit" : "V" }
 { "timestamp" : 1705580566, "event" : "idcode_test", "type" : "jtag_only" , "result" : "OK", "idcode" : "0x13636093", "golden" : "0x13636093" }
@@ -8,34 +9,31 @@
 { "timestamp" : 1705580600, "event" : "xadc", "type" : "vrefn",  "value" : 0.0000, "unit" : "V" }
 { "timestamp" : 1705580600, "event" : "xadc", "type" : "vccbram",  "value" : 0.9485, "unit" : "V" }
 { "timestamp" : 1705580600, "event" : "idcode_test", "type" : "jtag_only" , "result" : "OK", "idcode" : "0x13636093", "golden" : "0x13636093" }
-{ "timestamp" : 1705580512.319573, "event" : "check",  "type" : "rdcheck_complete", "frames" : 3, "upsets" : 3 }
-{ "timestamp" : 1705580513.848358, "event" : "check",  "type" : "emptycheck_complete", "frames" : 3, "upsets" : 3 }
-{ "timestamp" : 1705580514.985395, "event" : "check",  "type" : "rdcheck_complete", "frames" : 3, "upsets" : 3 }
-{ "timestamp" : 1705580516.51418, "event" : "check",  "type" : "emptycheck_complete", "frames" : 3, "upsets" : 3 }
-{ "timestamp" : 1705580528.378294, "event" : "check",  "type" : "rdcheck_complete", "frames" : 3, "upsets" : 3 }
-{ "timestamp" : 1705580528.697411, "event" : "corr",  "type" : "blank",  "frad" : "0x00020D04" , "nofupsets" : 1, "upsetlist" : [ { "bitoffset" : 1757 ,  "direction" : "0->1" }  ] }
-{ "timestamp" : 1705580529.91175, "event" : "check",  "type" : "emptycheck_complete", "frames" : 4, "upsets" : 4 }
-{ "timestamp" : 1705580531.048794, "event" : "check",  "type" : "rdcheck_complete", "frames" : 4, "upsets" : 4 }
-{ "timestamp" : 1705580532.577578, "event" : "check",  "type" : "emptycheck_complete", "frames" : 4, "upsets" : 4 }
-{ "timestamp" : 1705580533.714616, "event" : "check",  "type" : "rdcheck_complete", "frames" : 4, "upsets" : 4 }
-{ "timestamp" : 1705580535.2434, "event" : "check",  "type" : "emptycheck_complete", "frames" : 4, "upsets" : 4 }
-{ "timestamp" : 1705580536.380438, "event" : "check",  "type" : "rdcheck_complete", "frames" : 4, "upsets" : 4 }
-{ "timestamp" : 1705580537.909222, "event" : "check",  "type" : "emptycheck_complete", "frames" : 4, "upsets" : 4 }
-{ "timestamp" : 1705580539.04626, "event" : "check",  "type" : "rdcheck_complete", "frames" : 4, "upsets" : 4 }
-{ "timestamp" : 1705580540.575045, "event" : "check",  "type" : "emptycheck_complete", "frames" : 4, "upsets" : 4 }
-{ "timestamp" : 1705580566.820256, "event" : "corr",  "type" : "corr_clone1",  "frad" : "0x00440789" , "nofupsets" : 4, "upsetlist" : [ { "bitoffset" : 1051 ,  "direction" : "0->1" } , { "bitoffset" : 1929 ,  "direction" : "0->1" } , { "bitoffset" : 2904 ,  "direction" : "0->1" } , { "bitoffset" : 2955 ,  "direction" : "0->1" }  ] }
-{ "timestamp" : 1705580566.826727, "event" : "check",  "type" : "overall", "frames" : 5, "upsets" : 8 }
-{ "timestamp" : 1705580567.477954, "event" : "check",  "type" : "rdcheck_complete", "frames" : 5, "upsets" : 8 }
-{ "timestamp" : 1705580569.006751, "event" : "check",  "type" : "emptycheck_complete", "frames" : 5, "upsets" : 8 }
-{ "timestamp" : 1705580570.143793, "event" : "check",  "type" : "rdcheck_complete", "frames" : 5, "upsets" : 8 }
-{ "timestamp" : 1705580571.672578, "event" : "check",  "type" : "emptycheck_complete", "frames" : 5, "upsets" : 8 }
-{ "timestamp" : 1705580572.809616, "event" : "check",  "type" : "rdcheck_complete", "frames" : 5, "upsets" : 8 }
-{ "timestamp" : 1705580574.3384, "event" : "check",  "type" : "emptycheck_complete", "frames" : 5, "upsets" : 8 }
-{ "timestamp" : 1705580575.475437, "event" : "check",  "type" : "rdcheck_complete", "frames" : 5, "upsets" : 8 }
-{ "timestamp" : 1705580577.004222, "event" : "check",  "type" : "emptycheck_complete", "frames" : 5, "upsets" : 8 }
-{ "timestamp" : 1705580578.14126, "event" : "check",  "type" : "rdcheck_complete", "frames" : 5, "upsets" : 8 }
-{ "timestamp" : 1705580579.670045, "event" : "check",  "type" : "emptycheck_complete", "frames" : 5, "upsets" : 8 }
-{ "timestamp" : 1705580601.15025, "event" : "corr",  "type" : "corr_clone1",  "frad" : "0x00420F83" , "nofupsets" : 3, "upsetlist" : [ { "bitoffset" : 1177 ,  "direction" : "0->1" } , { "bitoffset" : 1898 ,  "direction" : "0->1" } , { "bitoffset" : 2566 ,  "direction" : "0->1" }  ] }
-{ "timestamp" : 1705580601.15586, "event" : "check",  "type" : "overall", "frames" : 6, "upsets" : 11 }
-{ "timestamp" : 1705580601.55694, "event" : "check",  "type" : "rdcheck_complete", "frames" : 6, "upsets" : 11 }
-{ "timestamp" : 1705580603.085738, "event" : "check",  "type" : "emptycheck_complete", "frames" : 6, "upsets" : 11 }
+{ "timestamp" : 1705580512.319573, "event" : "count",  "type" : "rdcount_complete", "frames" : 3, "upsets" : 3 }
+{ "timestamp" : 1705580513.848358, "event" : "count",  "type" : "emptycount_complete", "frames" : 3, "upsets" : 3 }
+{ "timestamp" : 1705580514.985395, "event" : "count",  "type" : "rdcount_complete", "frames" : 3, "upsets" : 3 }
+{ "timestamp" : 1705580516.51418, "event" : "count",  "type" : "emptycount_complete", "frames" : 3, "upsets" : 3 }
+{ "timestamp" : 1705580528.378294, "event" : "count",  "type" : "rdcount_complete", "frames" : 3, "upsets" : 3 }
+{ "timestamp" : 1705580529.91175, "event" : "count",  "type" : "emptycount_complete", "frames" : 4, "upsets" : 4 }
+{ "timestamp" : 1705580531.048794, "event" : "count",  "type" : "rdcount_complete", "frames" : 4, "upsets" : 4 }
+{ "timestamp" : 1705580532.577578, "event" : "count",  "type" : "emptycount_complete", "frames" : 4, "upsets" : 4 }
+{ "timestamp" : 1705580533.714616, "event" : "count",  "type" : "rdcount_complete", "frames" : 4, "upsets" : 4 }
+{ "timestamp" : 1705580535.2434, "event" : "count",  "type" : "emptycount_complete", "frames" : 4, "upsets" : 4 }
+{ "timestamp" : 1705580536.380438, "event" : "count",  "type" : "rdcount_complete", "frames" : 4, "upsets" : 4 }
+{ "timestamp" : 1705580537.909222, "event" : "count",  "type" : "emptycount_complete", "frames" : 4, "upsets" : 4 }
+{ "timestamp" : 1705580539.04626, "event" : "count",  "type" : "rdcount_complete", "frames" : 4, "upsets" : 4 }
+{ "timestamp" : 1705580540.575045, "event" : "count",  "type" : "emptycount_complete", "frames" : 4, "upsets" : 4 }
+{ "timestamp" : 1705580566.826727, "event" : "count",  "type" : "overall", "frames" : 5, "upsets" : 8 }
+{ "timestamp" : 1705580567.477954, "event" : "count",  "type" : "rdcount_complete", "frames" : 5, "upsets" : 8 }
+{ "timestamp" : 1705580569.006751, "event" : "count",  "type" : "emptycount_complete", "frames" : 5, "upsets" : 8 }
+{ "timestamp" : 1705580570.143793, "event" : "count",  "type" : "rdcount_complete", "frames" : 5, "upsets" : 8 }
+{ "timestamp" : 1705580571.672578, "event" : "count",  "type" : "emptycount_complete", "frames" : 5, "upsets" : 8 }
+{ "timestamp" : 1705580572.809616, "event" : "count",  "type" : "rdcount_complete", "frames" : 5, "upsets" : 8 }
+{ "timestamp" : 1705580574.3384, "event" : "count",  "type" : "emptycount_complete", "frames" : 5, "upsets" : 8 }
+{ "timestamp" : 1705580575.475437, "event" : "count",  "type" : "rdcount_complete", "frames" : 5, "upsets" : 8 }
+{ "timestamp" : 1705580577.004222, "event" : "count",  "type" : "emptycount_complete", "frames" : 5, "upsets" : 8 }
+{ "timestamp" : 1705580578.14126, "event" : "count",  "type" : "rdcount_complete", "frames" : 5, "upsets" : 8 }
+{ "timestamp" : 1705580579.670045, "event" : "count",  "type" : "emptycount_complete", "frames" : 5, "upsets" : 8 }
+{ "timestamp" : 1705580601.15586, "event" : "count",  "type" : "overall", "frames" : 6, "upsets" : 11 }
+{ "timestamp" : 1705580601.55694, "event" : "count",  "type" : "rdcount_complete", "frames" : 6, "upsets" : 11 }
+{ "timestamp" : 1705580603.085738, "event" : "count",  "type" : "emptycount_complete", "frames" : 6, "upsets" : 11 }
