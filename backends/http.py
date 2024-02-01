@@ -21,6 +21,9 @@ class HttpThread(threading.Thread):
    
    def run(self):
       print(f'{threading.current_thread().name}')
+
+      httperror = False
+
       while True:
          try:
             msg = self.queue.get_nowait()
@@ -40,11 +43,18 @@ class HttpThread(threading.Thread):
                if payload:
                   try:
                      res = requests.post(self.url, auth=(self.username, self.password), data=payload, verify=False)
-                  except:
+                  except Exception as e:
+                     if httperror == False:
+                        print(f'{time.ctime()}: {e}')
+                        httperror = True
                      self.cache.put(msg)
                   else:
+                     if httperror == True:
+                        print(f'{time.ctime()}: HTTP connection recovered')
+                        httperror = False
                      if res.ok == False:
                         self.cache.put(msg)
+                        print(f'{time.ctime()}: HTTP error {res.text}')
 
                      # check Influx line protocol errors (400: bad request)
                      if res.status_code == 400:
@@ -70,8 +80,6 @@ class HttpThread(threading.Thread):
                if k == 'timestamp':
                   timestamp = int(v * 1E9)
                elif k == 'event':
-                  if v == 'xadc':
-                     v = 'xadc_sensor'
                   measurement = v
                elif k in tags:
                   taglist.append(f'{k}={v}')
@@ -98,6 +106,8 @@ class HttpThread(threading.Thread):
                # InfluxDB timestamp in ns
                timestamp = int(v * 1E9)
             elif k == 'event':
+               if v == 'xadc':
+                  v = 'xadc_sensor'
                measurement = v
             elif k in tags:
                taglist.append(f'{k}={v}')
