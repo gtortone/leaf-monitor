@@ -5,6 +5,7 @@ import re
 import sys
 import threading
 import json
+import time
 import yaml
 import socket
 
@@ -47,11 +48,20 @@ if __name__ == '__main__':
    if os.environ.get('IOC_FIFO_PATH'):
       fifo = os.environ.get('IOC_FIFO_PATH')
 
-   try:
-      fd = os.open(fifo, os.O_RDONLY | os.O_NONBLOCK)
-   except Exception as e:
-      print(e)
-      exit(-1)
+   # wait for FIFO file
+   fifoerror = False
+   while True:
+      try:
+         fd = os.open(fifo, os.O_RDONLY | os.O_NONBLOCK)
+      except Exception as e:
+         if fifoerror == False:
+            print(f'file {fifo} not available - waiting for it...')
+            fifoerror = True
+         time.sleep(1)
+      else:
+         fifoerror = False
+         print(f'file {fifo} ready')
+         break;
 
    # get hostname
    hostname = socket.gethostname().split(".")[0] 
