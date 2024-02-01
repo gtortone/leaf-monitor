@@ -70,6 +70,8 @@ class HttpThread(threading.Thread):
                if k == 'timestamp':
                   timestamp = int(v * 1E9)
                elif k == 'event':
+                  if v == 'xadc':
+                     v = 'xadc_sensor'
                   measurement = v
                elif k in tags:
                   taglist.append(f'{k}={v}')
