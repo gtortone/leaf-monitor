@@ -12,54 +12,56 @@ class HttpThread(threading.Thread):
          
       self.name = "HttpThread"
       self.queue = Queue()
-      self.cache = Queue()
       self.hostname = kwargs['hostname']
       self.url = kwargs['url']
+      self.session = requests.Session()
       self.username = kwargs.get('username', None)
       self.password = kwargs.get('password', None)
+      self.payloads = []
+      self.httperror = False
       self.daemon = True
    
    def run(self):
       print(f'{threading.current_thread().name}')
 
-      httperror = False
+      self.session.auth = (self.username, self.password)
+      self.session.verify = False
 
       while True:
          try:
             msg = self.queue.get_nowait()
          except Empty:
-            if self.cache.empty() == False:
-               msg = self.cache.get_nowait()
-            else:
-               time.sleep(0.1)
+            self.send()
+            time.sleep(1)
          else:
             try:
                data = json.loads(msg)
             except:
                print(f'error parsing JSON: {msg}')
             else:
-               payload = self.get_influx_payload(data)
-               res = None
-               if payload:
-                  try:
-                     res = requests.post(self.url, auth=(self.username, self.password), data=payload, verify=False)
-                  except Exception as e:
-                     if httperror == False:
-                        print(f'{time.ctime()}: {e}')
-                        httperror = True
-                     self.cache.put(msg)
-                  else:
-                     if httperror == True:
-                        print(f'{time.ctime()}: HTTP connection recovered')
-                        httperror = False
-                     if res.ok == False:
-                        self.cache.put(msg)
-                        print(f'{time.ctime()}: HTTP error {res.text}')
+               self.payloads.append(self.get_influx_payload(data))
+               self.send()
 
-                     # check Influx line protocol errors (400: bad request)
-                     if res.status_code == 400:
-                        print(f'{threading.current_thread().name}: HTTP error (400): {res.text}')
-   
+      print(f'{threading.current_thread().name}: HTTP error (400): {res.text}')
+
+   def send(self):
+      #if len(self.payloads) >= 100:
+      if len(self.payloads) >= 5:            ########################
+         try:
+            res = self.session.post(self.url, data='\n'.join(self.payloads[0:5]))         #################
+         except Exception as e:
+            if self.httperror == False:
+               print(f'{time.ctime()}: {e}')
+               self.httperror = True
+         else:
+            if self.httperror == True:
+               print(f'{time.ctime()}: HTTP connection recovered')
+               self.httperror = False
+            if res.ok == True and res.status_code != 400:
+               del(self.payloads[0:5])    #######################3
+            else:
+               print(f'{time.ctime()}: HTTP error {res.text}')
+      
    def get_influx_payload(self, data):
       timestamp = None
       measurement = None
