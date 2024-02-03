@@ -45,10 +45,9 @@ class HttpThread(threading.Thread):
       print(f'{threading.current_thread().name}: HTTP error (400): {res.text}')
 
    def send(self):
-      #if len(self.payloads) >= 100:
-      if len(self.payloads) >= 5:            ########################
+      if len(self.payloads) >= 100:
          try:
-            res = self.session.post(self.url, data='\n'.join(self.payloads[0:5]))         #################
+            res = self.session.post(self.url, data='\n'.join(self.payloads[0:100]))
          except Exception as e:
             if self.httperror == False:
                print(f'{time.ctime()}: {e}')
@@ -58,7 +57,7 @@ class HttpThread(threading.Thread):
                print(f'{time.ctime()}: HTTP connection recovered')
                self.httperror = False
             if res.ok == True and res.status_code != 400:
-               del(self.payloads[0:5])    #######################3
+               del(self.payloads[0:100])
             else:
                print(f'{time.ctime()}: HTTP error {res.text}')
       
