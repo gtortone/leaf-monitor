@@ -1,7 +1,7 @@
 
 pvdb = {
 
-   'kintex7': {
+   'zynq7000': {
 
       'TEMP' : {
          'prec' : 3,
@@ -43,7 +43,7 @@ pvdb = {
          'metric': ["vccbram"],
          'valattr': "value",
       },
-      'VCCPINT' : {        # no artix7
+      'VCCPINT' : {
          'prec' : 3,
          'mdel': -1,
          'scan' : 1,
@@ -53,7 +53,7 @@ pvdb = {
          'metric': ["vccpint"],
          'valattr': "value",
       },
-      'VCCPAUX' : {        # no artix7
+      'VCCPAUX' : {
          'prec' : 3,
          'mdel': -1,
          'scan' : 1,
@@ -63,7 +63,7 @@ pvdb = {
          'metric': ["vccpaux"],
          'valattr': "value",
       },
-      'VCCODDR' : {        # no artix7
+      'VCCODDR' : {
          'prec' : 3,
          'mdel': -1,
          'scan' : 1,
@@ -94,9 +94,10 @@ pvdb = {
          'valattr': "value",
       },
       'IDCODETEST:RESULT' : {
-         'type': 'str',
+         'type': 'int',
+         'mdel': -1,
          'scan' : 1,
-         'value': '',
+         'value': 0,
          'event': "idcode_test",
          'metric': ["jtag_only"],
          'valattr': "result",
@@ -119,7 +120,7 @@ pvdb = {
          'metric': ["rdcheck_complete", "emptycheck_complete", "overall"],
          'valattr': "frames",
        },
-   },          # end of kintex7
+   },          # end of zynq7000
 
    'artix7': {
 
@@ -184,9 +185,10 @@ pvdb = {
          'valattr': "value",
       },
       'IDCODETEST:RESULT' : {
-         'type': 'str',
+         'type': 'int',
+         'mdel': -1,
          'scan' : 1,
-         'value': '',
+         'value': 0,
          'event': "idcode_test",
          'metric': ["jtag_only"],
          'valattr': "result",
