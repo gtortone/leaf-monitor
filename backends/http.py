@@ -84,8 +84,8 @@ class HttpThread(threading.Thread):
                   measurement = v
                elif k in tags:
                   taglist.append(f'{k}={v}')
-               elif k == 'frad':
-                  valuelist.append(f'{k}={int(v,16)}')
+               #elif k == 'frad':
+               #   valuelist.append(f'{k}={int(v,16)}')
                else:
                   if type(v) == str:
                      v = f'"{v}"'
