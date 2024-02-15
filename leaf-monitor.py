@@ -82,7 +82,8 @@ if __name__ == '__main__':
 
       if 'console' in backend:
          if backend['console'].get('enable', False):
-            threads.append(ConsoleThread())
+            events = backend['console'].get('events', None)
+            threads.append(ConsoleThread(events))
 
       if 'epics' in backend:
          if backend['epics'].get('enable', False):
